@@ -1,14 +1,16 @@
 package com.nicolasbarros.sorteiolibertadores.services;
 
 import com.nicolasbarros.sorteiolibertadores.domains.DrawGroup;
+import com.nicolasbarros.sorteiolibertadores.dtos.DrawTeamDTO;
+import com.nicolasbarros.sorteiolibertadores.exceptions.TeamNotDrawnNotFoundException;
 import com.nicolasbarros.sorteiolibertadores.repositories.DrawGroupRepository;
-import com.nicolasbarros.sorteiolibertadores.repositories.DrawRepository;
 import com.nicolasbarros.sorteiolibertadores.domains.Team;
-import com.nicolasbarros.sorteiolibertadores.repositories.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Objects;
 import java.util.Optional;
 
 import java.util.List;
@@ -16,26 +18,24 @@ import java.util.List;
 @Service
 public class DrawGroupService {
     @Autowired
-    private TeamRepository teamRepository;
-    @Autowired
-    private DrawRepository drawRepository;
-    @Autowired
     private DrawGroupRepository drawGroupRepository;
+    @Autowired
+    private TeamService teamService;
 
-    public DrawGroup setTeamGroup(SetTeamGroupDTO data) {
-        Team drawingTeam = teamRepository.findById(data.team_id()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Team with id: " + data.team_id() + " not found"));
-        drawRepository.findById(data.draw_id()).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Draw with id: " + data.draw_id() + " not found"));
+    public DrawGroup drawTeam(DrawTeamDTO data) {
+        Optional<Team> getTeam = teamService.getById(data.team_id());
 
-        if (drawingTeam.getPot() == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Team with id: " + data.draw_id() + " dont have pot");
-        }
+        Team drawingTeam = getTeam.orElseGet(() -> {
+            return teamService.getNotDrawTeam().orElseThrow(TeamNotDrawnNotFoundException::new);
+        });
 
         List<DrawGroup> drawGroups = drawGroupRepository.findAllByDrawId(data.draw_id());
 
         Optional<DrawGroup> selectedDrawGroupOptional = drawGroups.stream()
-                .filter(drawGroup -> drawGroup.getTeams().stream()
+                .filter(drawGroup -> drawGroup.getTeams().size() < 4 &&
+                        drawGroup.getTeams().stream()
                         .noneMatch(teamInGroup ->
-                                (teamInGroup.getPot().getPot_id() == drawingTeam.getPot().getPot_id() && drawingTeam.getPot().getPot_id() != 4) ||
+                                (Objects.equals(teamInGroup.getPot().getPot_id(), drawingTeam.getPot().getPot_id()) && drawingTeam.getPot().getPot_id() != 4) ||
                                         (!teamInGroup.equals(drawingTeam) && teamInGroup.getCountry().equals(drawingTeam.getCountry()))
                         )
                 )
@@ -43,7 +43,7 @@ public class DrawGroupService {
 
         selectedDrawGroupOptional.ifPresent(drawGroup -> {
             drawingTeam.setDrawGroup(drawGroup);
-            teamRepository.save(drawingTeam);
+            teamService.update(drawingTeam);
         });
 
         return selectedDrawGroupOptional.orElse(null);

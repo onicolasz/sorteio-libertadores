@@ -1,7 +1,7 @@
 package com.nicolasbarros.sorteiolibertadores.domains;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.nicolasbarros.sorteiolibertadores.dtos.RequestTeamDTO;
+import com.nicolasbarros.sorteiolibertadores.dtos.CreateTeamDTO;
 import jakarta.persistence.*;
 import lombok.*;
 import org.antlr.v4.runtime.misc.NotNull;
@@ -15,7 +15,7 @@ import org.antlr.v4.runtime.misc.NotNull;
 public class Team {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long team_id;
+    private Long team_id;
 
     @NotNull
     @Column( nullable = false )
@@ -35,8 +35,8 @@ public class Team {
     @JoinColumn(name = "draw_group_id")
     private DrawGroup drawGroup;
 
-    public Team(RequestTeamDTO requestTeamDTO) {
-        this.name = requestTeamDTO.name();
-        this.country = requestTeamDTO.country();
+    public Team(CreateTeamDTO createTeamDTO) {
+        this.name = createTeamDTO.name();
+        this.country = createTeamDTO.country();
     }
 }

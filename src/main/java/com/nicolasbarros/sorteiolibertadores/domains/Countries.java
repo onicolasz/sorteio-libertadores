@@ -22,14 +22,5 @@ public enum Countries {
     PUERTO_RICO,
     URUGUAY,
     VENEZUELA;
-
-    public static boolean isValidCountry(Countries country) {
-        for (Countries c : Countries.values()) {
-            if (c.equals(country)) {
-                return true;
-            }
-        }
-        return false;
-    }
 }
 

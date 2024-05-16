@@ -16,13 +16,13 @@ import java.util.List;
 public class DrawGroup {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long draw_group_id;
+    private Long draw_group_id;
 
     @NotNull
     @Column( nullable = false )
     private String letter;
 
-    @OneToMany(mappedBy = "drawGroup", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "drawGroup", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private List<Team> teams;
 
     @JsonIgnore

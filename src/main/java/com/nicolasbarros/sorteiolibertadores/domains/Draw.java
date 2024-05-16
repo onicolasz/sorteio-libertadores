@@ -14,7 +14,7 @@ import java.util.List;
 public class Draw {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long draw_id;
+    private Long draw_id;
 
     @OneToMany(mappedBy = "draw", cascade = CascadeType.ALL)
     private List<DrawGroup> drawGroups;

@@ -18,18 +18,29 @@ public class DrawController {
 
     @Operation(description = "Retorna o sorteio com os grupos e times")
     @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "Retorna o sorteio com os grupos de times"),
-            @ApiResponse(responseCode = "404", description = "Não existe sorteio com o id informado")
+            @ApiResponse(responseCode = "200", description = "Sorteio retornado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Sorteio com id {id} não encontrado"),
+            @ApiResponse(responseCode = "422", description = "Dados de requisição inválidos"),
+            @ApiResponse(responseCode = "400", description = "Parametros inválidos"),
+            @ApiResponse(responseCode = "500", description = "Erro ao buscar sorteio")
     })
     @GetMapping("/{draw_id}")
-    public ResponseEntity getDraw(@PathVariable("draw_id") long draw_id) {
-        try {
-            Draw draw = drawService.getDraw(draw_id);
-            return ResponseEntity.ok().body(draw);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("An error ocurred on draw team");
-        }
+    public ResponseEntity getDraw(@PathVariable("draw_id") Long draw_id) {
+        Draw draw = drawService.getById(draw_id);
+        return ResponseEntity.ok().body(draw);
+    }
+
+    @Operation(description = "Realiza todo o sorteio, colocando os times dos potes em seus respectivos grupos sorteados.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Sorteio realizado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Sorteio com id {id} não encontrado"),
+            @ApiResponse(responseCode = "422", description = "Dados de requisição inválidos"),
+            @ApiResponse(responseCode = "400", description = "Parametros inválidos"),
+            @ApiResponse(responseCode = "500", description = "Erro ao realizar sorteio")
+    })
+    @PostMapping("/{draw_id}/draw-all")
+    public ResponseEntity drawAll(@PathVariable("draw_id") Long draw_id) {
+        Draw draw = drawService.drawAll(draw_id);
+        return ResponseEntity.ok().body(draw);
     }
 }

@@ -17,23 +17,13 @@ public class PotController {
 
     @GetMapping()
     public ResponseEntity getAll() {
-        try {
-            List<Pot> pots = potService.getAll();
-            return ResponseEntity.ok().body(pots);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("An error ocurred on get all pots");
-        }
+        List<Pot> pots = potService.getAll();
+        return ResponseEntity.ok().body(pots);
     }
 
     @PutMapping("/{pot_id}/team/{team_id}")
-    public ResponseEntity setTeamOnPot(@PathVariable("pot_id") long pot_id, @PathVariable("team_id") long team_id) {
-        try {
-            Pot pot = potService.setTeamOnPot(pot_id, team_id);
-            return ResponseEntity.ok().body(pot);
-        } catch (ResponseStatusException e) {
-            return ResponseEntity.status(e.getStatusCode()).body(e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body("An error ocurred on set team on pot");
-        }
+    public ResponseEntity drawTeamOnPot(@PathVariable("pot_id") long pot_id, @PathVariable("team_id") long team_id) {
+        Pot pot = potService.drawTeamOnPot(pot_id, team_id);
+        return ResponseEntity.ok().body(pot);
     }
 }

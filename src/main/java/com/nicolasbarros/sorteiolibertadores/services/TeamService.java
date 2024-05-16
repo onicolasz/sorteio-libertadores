@@ -1,14 +1,15 @@
 package com.nicolasbarros.sorteiolibertadores.services;
 
 import com.nicolasbarros.sorteiolibertadores.domains.Team;
-import com.nicolasbarros.sorteiolibertadores.dtos.RequestTeamDTO;
+import com.nicolasbarros.sorteiolibertadores.dtos.CreateTeamDTO;
+import com.nicolasbarros.sorteiolibertadores.exceptions.ResourceNotFoundException;
+import com.nicolasbarros.sorteiolibertadores.exceptions.TeamNotDrawnNotFoundException;
 import com.nicolasbarros.sorteiolibertadores.repositories.TeamRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TeamService {
@@ -19,20 +20,29 @@ public class TeamService {
         return teamRepository.findAll();
     }
 
-    public Team getNotDrawTeam() {
-        return teamRepository.findTeamNotDraw();
+    public int countAllNotDrawned() {
+        return teamRepository.countAllNotDrawned();
     }
-    public Team create(RequestTeamDTO data) {
+
+    public Optional<Team> getById(Long id) {
+        return teamRepository.findById(id);
+    }
+
+    public void update(Team team) {
+        teamRepository.save(team);
+    }
+
+    public Optional<Team> getNotDrawTeam() {
+        return Optional.ofNullable(teamRepository.findTeamNotDraw().orElseThrow(TeamNotDrawnNotFoundException::new));
+    }
+
+    public Team create(CreateTeamDTO data) {
         Team newTeam = new Team(data);
         return teamRepository.save(newTeam);
     }
 
-    public Team delete(long id) {
-        if (!teamRepository.existsById(id)) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Team not found with id: " + id);
-        }
-
-        Team team = teamRepository.getReferenceById(id);
+    public Team delete(Long id) {
+        Team team = teamRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Team with id: " + id + " not found"));
         teamRepository.delete(team);
 
         return team;

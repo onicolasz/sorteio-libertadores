@@ -15,11 +15,11 @@ import java.util.List;
 public class Pot {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long pot_id;
+    private Long pot_id;
 
     @NotNull
     @Column( nullable = false )
-    private long number;
+    private Long number;
 
     @OneToMany(mappedBy = "pot", cascade = CascadeType.ALL)
     private List<Team> teams;
